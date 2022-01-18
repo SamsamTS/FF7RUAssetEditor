@@ -5,8 +5,56 @@
 
 namespace UAssetEditor {
 
-#define HEADER_SIZE 193
 #define DELETE(x) {delete x; x = NULL;}
+#define UASSET_MAGIC 2653586369
+
+#pragma pack(push, 1)
+	struct uHeader
+	{
+		unsigned int magic; //0
+		int LegacyFileVersion; //4
+		int LegacyUE3Version; //8
+		int fileVersionUE4; //12
+		int FileVersionLicenseeUE4; //16
+		int numCustomVersions; //20
+		int SectionSixOffset; //24
+		int FolderNameLength; //28
+		char FolderName[5]; //32
+		unsigned int PackageFlags;//37
+		int NameCount; //41
+		int NameOffset; //45
+		int GatherableTextDataCount; //49
+		int GatherableTextDataOffset; //53
+		int ExportCount; //57
+		int ExportOffset; //61
+		int ImportCount; //65
+		int ImportOffset; //69
+		int DependsOffset; //73
+		int SoftPackageReferencesCount; //77
+		int SoftPackageReferencesOffset; //81
+		int SearchableNamesOffset; //85
+		int ThumbnailTableOffset; //89
+		char PackageGuid[16]; //93
+		int generationCount; //109
+		int genNumExports; //113
+		int genNumNames; //117
+		char RecordedEngineVersion[14];//121
+		char RecordedCompatibleWithEngineVersion[14]; //135
+		int CompressionFlags; //149 
+		int numCompressedChunks; //153
+		int PackageSource; //157
+		int numAdditionalPackagesToCook; //161
+		int AssetRegistryDataOffset; //165
+		long long BulkDataStartOffset; //169
+		int WorldTileInfoDataOffset; //177
+		int numChunkIDs; //181
+		int PreloadDependencyCount; //185
+		int PreloadDependencyOffset; //189
+	};
+#pragma pack(pop)
+
+#define HEADER_SIZE sizeof(uHeader)
+
 
 	using namespace System;
 	using namespace System::Windows::Forms;
@@ -279,7 +327,7 @@ namespace UAssetEditor {
 		String^ title = "UAssetEditor";
 		String^ fileName;
 		bool unsavedChanges = false;
-		char* header;
+		uHeader* header;
 		char* strings;
 		char* footer;
 		int stringsSize;
@@ -418,7 +466,7 @@ namespace UAssetEditor {
 
 		System::Void aboutToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 		{
-			MessageBox::Show("UAssetEditor version 1.0.0 by SamsamTS.", "About", MessageBoxButtons::OK, MessageBoxIcon::Information);
+			MessageBox::Show("UAssetEditor version 1.0.1 by SamsamTS.", "About", MessageBoxButtons::OK, MessageBoxIcon::Information);
 		}
 	};
 }

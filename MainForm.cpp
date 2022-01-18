@@ -42,6 +42,9 @@ namespace UAssetEditor
         DELETE(strings);
         DELETE(footer);
 
+        FileInfo^ info = gcnew FileInfo(filename);
+        long long filesize = info->Length;
+
         // Open file
         char* s = to_pchar(filename);
         FILE* file = fopen(s, "rb");
@@ -53,7 +56,7 @@ namespace UAssetEditor
         }
 
         // Read header
-        header = new char[HEADER_SIZE];
+        header = new uHeader;
         int c = fread(header, 1, HEADER_SIZE, file);
         if (c != HEADER_SIZE)
         {
@@ -64,18 +67,26 @@ namespace UAssetEditor
             return;
         }
 
-        int filesize = *(int*)(header + 24);
-        int stringEnd = *(int*)(header + 69);
-        // Other positions that change when changing file size
-        //int pos1 = *(int*)(header + 61);
-        //int pos2 = *(int*)(header + 73);
-        //int pos3 = *(int*)(header + 165);
-        //int pos4 = *(int*)(header + 169);
-        //int pos5 = *(int*)(header + 189);
-        //int pos6 = *(int*)(header + pos1 + 36); // file size again in the footer
+        if (header->magic != UASSET_MAGIC)
+        {
+            fclose(file);
+            DELETE(header);
+
+            toolStripStatus->Text = "Wrong file format.";
+            return;
+        }
+
+        if (header->NameOffset != HEADER_SIZE)
+        {
+            fclose(file);
+            DELETE(header);
+
+            toolStripStatus->Text = "Wrong header size.";
+            return;
+        }
 
         // Read strings
-        stringsSize = stringEnd - HEADER_SIZE;
+        stringsSize = header->ImportOffset - HEADER_SIZE;
         strings = new char[stringsSize];
 
         if (fread(strings, 1, stringsSize, file) != stringsSize)
@@ -89,7 +100,7 @@ namespace UAssetEditor
         }
 
         // Read footer
-        footerSize = filesize - stringEnd;
+        footerSize = filesize - header->ImportOffset;
         footer = new char[footerSize];
 
         if (fread(footer, 1, footerSize, file) != footerSize)
@@ -145,21 +156,24 @@ namespace UAssetEditor
         }
 
         // Header section
-        char* newHeader = new char[HEADER_SIZE];
+        uHeader* newHeader = new uHeader;
         memcpy(newHeader, header, HEADER_SIZE);
 
         int diff = newSize - stringsSize;
 
-        // This is all the places where changing the length matter
-        *(int*)(newHeader + 24) = *(int*)(header + 24) + diff; // File size
-        *(int*)(newHeader + 61) = *(int*)(header + 61) + diff;
-        *(int*)(newHeader + 69) = *(int*)(header + 69) + diff; // Strings end
-        *(int*)(newHeader + 73) = *(int*)(header + 73) + diff;
-        *(int*)(newHeader + 165) = *(int*)(header + 165) + diff;
-        *(int*)(newHeader + 189) = *(int*)(header + 189) + diff;
-
-        // Saving postion where to change footer
-        int pos = *(int*)(newHeader + 61) - *(int*)(newHeader + 69) + 36;
+        int o = header->ImportOffset - 1;
+        if (header->SectionSixOffset > o)            newHeader->SectionSixOffset        = header->SectionSixOffset + diff;
+        if (header->ExportOffset > o)                newHeader->ExportOffset            = header->ExportOffset + diff;
+        if (header->ImportOffset > o)                newHeader->ImportOffset            = header->ImportOffset + diff;
+        if (header->DependsOffset > o)               newHeader->DependsOffset           = header->DependsOffset + diff;
+        if (header->SoftPackageReferencesOffset > o) newHeader->SoftPackageReferencesOffset = header->SoftPackageReferencesOffset + diff;
+        if (header->SearchableNamesOffset > o)       newHeader->SearchableNamesOffset   = header->SearchableNamesOffset + diff;
+        if (header->ThumbnailTableOffset > o)        newHeader->ThumbnailTableOffset    = header->ThumbnailTableOffset + diff;
+        if (header->SearchableNamesOffset > o)       newHeader->SearchableNamesOffset   = header->SearchableNamesOffset + diff;
+        if (header->AssetRegistryDataOffset > o)     newHeader->AssetRegistryDataOffset = header->AssetRegistryDataOffset + diff;
+        if (header->BulkDataStartOffset > o)         newHeader->BulkDataStartOffset     = header->BulkDataStartOffset + diff;
+        if (header->WorldTileInfoDataOffset > o)     newHeader->WorldTileInfoDataOffset = header->WorldTileInfoDataOffset + diff;
+        if (header->PreloadDependencyOffset > o)     newHeader->PreloadDependencyOffset = header->PreloadDependencyOffset + diff;
 
         if (fwrite(newHeader, 1, HEADER_SIZE, file) != HEADER_SIZE)
         {
@@ -205,7 +219,16 @@ namespace UAssetEditor
         char* newFooter = new char[footerSize];
         memcpy(newFooter, footer, footerSize);
 
-        *(int*)(newFooter + pos) = *(int*)(footer + pos) + diff; // Should be the file size
+        if (header->ExportOffset > 0)
+        {
+            char* p = newFooter + (header->ExportOffset - header->ImportOffset) + 36;
+            for (int i = 0; i < header->ExportCount; i++)
+            {
+                // SerialOffset
+                *(long long*)p= *(long long*)p + diff;
+                p += 104;
+            }
+        }
 
         if (fwrite(newFooter, 1, footerSize, file) != footerSize)
         {
