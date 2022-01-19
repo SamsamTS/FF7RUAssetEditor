@@ -98,10 +98,11 @@ namespace UAssetEditor {
 		System::Windows::Forms::ToolStripStatusLabel^ toolStripStatus;
 		System::Windows::Forms::OpenFileDialog^ openFileDialog;
 		System::Windows::Forms::SaveFileDialog^ saveFileDialog;
-		System::Windows::Forms::DataGridViewTextBoxColumn^ assetStrings;
-		System::Windows::Forms::DataGridViewTextBoxColumn^ assetValues;
 		System::Windows::Forms::ToolStripMenuItem^ helpToolStripMenuItem;
 		System::Windows::Forms::ToolStripMenuItem^ aboutToolStripMenuItem;
+		System::Windows::Forms::DataGridViewTextBoxColumn^ n;
+		System::Windows::Forms::DataGridViewTextBoxColumn^ assetStrings;
+		System::Windows::Forms::DataGridViewTextBoxColumn^ assetValues;
 
 		System::ComponentModel::Container^ components;
 
@@ -112,6 +113,7 @@ namespace UAssetEditor {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle1 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
 			System::Windows::Forms::DataGridViewCellStyle^ dataGridViewCellStyle2 = (gcnew System::Windows::Forms::DataGridViewCellStyle());
 			this->menuStrip = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -124,12 +126,13 @@ namespace UAssetEditor {
 			this->aboutToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->dataGridView = (gcnew System::Windows::Forms::DataGridView());
-			this->assetStrings = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-			this->assetValues = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 			this->statusStrip = (gcnew System::Windows::Forms::StatusStrip());
 			this->toolStripStatus = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->openFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->saveFileDialog = (gcnew System::Windows::Forms::SaveFileDialog());
+			this->n = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->assetStrings = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->assetValues = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 			this->menuStrip->SuspendLayout();
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView))->BeginInit();
@@ -207,7 +210,7 @@ namespace UAssetEditor {
 			// aboutToolStripMenuItem
 			// 
 			this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
-			this->aboutToolStripMenuItem->Size = System::Drawing::Size(180, 22);
+			this->aboutToolStripMenuItem->Size = System::Drawing::Size(107, 22);
 			this->aboutToolStripMenuItem->Text = L"&About";
 			this->aboutToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::aboutToolStripMenuItem_Click);
 			// 
@@ -230,8 +233,8 @@ namespace UAssetEditor {
 			this->dataGridView->ColumnHeadersBorderStyle = System::Windows::Forms::DataGridViewHeaderBorderStyle::Single;
 			this->dataGridView->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
 			this->dataGridView->ColumnHeadersVisible = false;
-			this->dataGridView->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(2) {
-				this->assetStrings,
+			this->dataGridView->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(3) {
+				this->n, this->assetStrings,
 					this->assetValues
 			});
 			this->dataGridView->Dock = System::Windows::Forms::DockStyle::Fill;
@@ -244,25 +247,6 @@ namespace UAssetEditor {
 			this->dataGridView->CellClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &MainForm::dataGridView_CellClick);
 			this->dataGridView->CellValueChanged += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &MainForm::dataGridView_CellValueChanged);
 			this->dataGridView->SelectionChanged += gcnew System::EventHandler(this, &MainForm::dataGridView_SelectionChanged);
-			// 
-			// assetStrings
-			// 
-			this->assetStrings->AutoSizeMode = System::Windows::Forms::DataGridViewAutoSizeColumnMode::Fill;
-			this->assetStrings->HeaderText = L"Strings";
-			this->assetStrings->Name = L"assetStrings";
-			this->assetStrings->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::NotSortable;
-			// 
-			// assetValues
-			// 
-			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleRight;
-			dataGridViewCellStyle2->BackColor = System::Drawing::SystemColors::Control;
-			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
-			dataGridViewCellStyle2->NullValue = nullptr;
-			this->assetValues->DefaultCellStyle = dataGridViewCellStyle2;
-			this->assetValues->HeaderText = L"Values";
-			this->assetValues->Name = L"assetValues";
-			this->assetValues->ReadOnly = true;
-			this->assetValues->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::NotSortable;
 			// 
 			// statusStrip
 			// 
@@ -289,6 +273,35 @@ namespace UAssetEditor {
 			// saveFileDialog
 			// 
 			this->saveFileDialog->Filter = L"UAsset File (*.uasset)|*.uasset";
+			// 
+			// n
+			// 
+			dataGridViewCellStyle1->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleRight;
+			this->n->DefaultCellStyle = dataGridViewCellStyle1;
+			this->n->HeaderText = L"#";
+			this->n->Name = L"n";
+			this->n->ReadOnly = true;
+			this->n->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::NotSortable;
+			this->n->Width = 30;
+			// 
+			// assetStrings
+			// 
+			this->assetStrings->AutoSizeMode = System::Windows::Forms::DataGridViewAutoSizeColumnMode::Fill;
+			this->assetStrings->HeaderText = L"Strings";
+			this->assetStrings->Name = L"assetStrings";
+			this->assetStrings->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::NotSortable;
+			// 
+			// assetValues
+			// 
+			dataGridViewCellStyle2->Alignment = System::Windows::Forms::DataGridViewContentAlignment::MiddleRight;
+			dataGridViewCellStyle2->BackColor = System::Drawing::SystemColors::Control;
+			dataGridViewCellStyle2->ForeColor = System::Drawing::SystemColors::ControlDarkDark;
+			dataGridViewCellStyle2->NullValue = nullptr;
+			this->assetValues->DefaultCellStyle = dataGridViewCellStyle2;
+			this->assetValues->HeaderText = L"Values";
+			this->assetValues->Name = L"assetValues";
+			this->assetValues->ReadOnly = true;
+			this->assetValues->SortMode = System::Windows::Forms::DataGridViewColumnSortMode::NotSortable;
 			// 
 			// MainForm
 			// 
@@ -449,11 +462,12 @@ namespace UAssetEditor {
 		System::Void dataGridView_CellClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 		{
 			dataGridView->Rows[e->RowIndex]->Cells[e->ColumnIndex]->Selected = true;
-			dataGridView->BeginEdit(false);
+			dataGridView->BeginEdit(true);
 		}
 
 		System::Void dataGridView_CellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 		{
+			if (e->ColumnIndex != 1) return;
 			if (System::String::IsNullOrEmpty(fileName)) return;
 			if (!unsavedChanges)
 			{
@@ -466,7 +480,7 @@ namespace UAssetEditor {
 
 		System::Void aboutToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 		{
-			MessageBox::Show("UAssetEditor version 1.0.1 by SamsamTS.", "About", MessageBoxButtons::OK, MessageBoxIcon::Information);
+			MessageBox::Show("UAssetEditor version 1.0.2 by SamsamTS.", "About", MessageBoxButtons::OK, MessageBoxIcon::Information);
 		}
 	};
 }

@@ -1,4 +1,5 @@
 #include "MainForm.h"
+#include "CRCGenerator.h"
 
 using namespace System;
 using namespace System::Windows::Forms;
@@ -127,7 +128,8 @@ namespace UAssetEditor
             String^ str = gcnew String(p);
             p = p + l;
             // value after the string
-            int i = dataGridView->Rows->Add(gcnew array<Object^> { str, * (unsigned int*)p });
+            int i = dataGridView->Rows->Add(gcnew array<Object^> { 0, str, * (unsigned int*)p });
+            dataGridView->Rows[i]->Cells[0]->Value = i;
             p = p + 4;
         }
         dataGridView->Enabled = true;
@@ -152,7 +154,7 @@ namespace UAssetEditor
         int newSize = 0;
         for (int i = 0; i < dataGridView->Rows->Count; i++)
         {
-            newSize += ((String^)dataGridView->Rows[i]->Cells[0]->Value)->Length + 9;
+            newSize += ((String^)dataGridView->Rows[i]->Cells[1]->Value)->Length + 9;
         }
 
         // Header section
@@ -192,15 +194,16 @@ namespace UAssetEditor
         for (int i = 0; i < dataGridView->Rows->Count; i++)
         {
             // string length
-            int l = ((String^)dataGridView->Rows[i]->Cells[0]->Value)->Length + 1;
+            int l = ((String^)dataGridView->Rows[i]->Cells[1]->Value)->Length + 1;
             *((int*)p) = l;
             p += 4;
             // the string
-            char* s = to_pchar((String^)dataGridView->Rows[i]->Cells[0]->Value);
+            char* s = to_pchar((String^)dataGridView->Rows[i]->Cells[1]->Value);
             memcpy(p, s, l);
             p += l;
             // the value after the string
-            *((unsigned int*)p) = (unsigned int)dataGridView->Rows[i]->Cells[1]->Value;
+            //*((unsigned int*)p) = (unsigned int)dataGridView->Rows[i]->Cells[2]->Value;
+            *((unsigned int*)p) = GenerateHash((String^)dataGridView->Rows[i]->Cells[1]->Value);
             p += 4;
         }
 
